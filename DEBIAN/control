@@ -1,0 +1,10 @@
+Package: aiy-voicebonnet-soundcard-dkms
+Version: 2.0-1
+Architecture: all
+Maintainer: AIY Projects <support-aiyprojects@google.com>
+Installed-Size: 234
+Depends: raspberrypi-kernel-headers, dkms (>= 2.1.0.0)
+Section: misc
+Priority: optional
+Description: AIY Voice DKMS driver.
+ Required driver for Voice Bonnet board.
