@@ -1,5 +1,5 @@
 Package: aiy-voicebonnet-soundcard-dkms
-Version: 2.0-1
+Version: 2.0-1+nmu1
 Architecture: all
 Maintainer: AIY Projects <support-aiyprojects@google.com>
 Installed-Size: 234

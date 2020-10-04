@@ -98,17 +98,20 @@ static struct snd_soc_ops snd_rpi_aiy_voicebonnet_ops = {
 	.hw_params = snd_rpi_aiy_voicebonnet_hw_params,
 };
 
-static struct snd_soc_dai_link snd_rpi_aiy_voicebonnet_dai[] = {
-	{
-		.name = "rt5645",
-		.stream_name = "Google AIY Voice Bonnet SoundCard HiFi",
-		.codec_dai_name = "rt5645-aif1",
-		.dai_fmt = SND_SOC_DAIFMT_I2S |
-			   SND_SOC_DAIFMT_NB_NF |
-			   SND_SOC_DAIFMT_CBS_CFS,
-		.ops = &snd_rpi_aiy_voicebonnet_ops,
-		.init = snd_rpi_aiy_voicebonnet_init
-	},
+SND_SOC_DAILINK_DEFS(pcm,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "rt5645-aif1")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+static struct snd_soc_dai_link snd_rpi_aiy_voicebonnet_dai = {
+	.name = "rt5645",
+	.stream_name = "Google AIY Voice Bonnet SoundCard HiFi",
+	.init = snd_rpi_aiy_voicebonnet_init,
+	.ops = &snd_rpi_aiy_voicebonnet_ops,
+	.dai_fmt = SND_SOC_DAIFMT_I2S |
+		   SND_SOC_DAIFMT_NB_NF |
+		   SND_SOC_DAIFMT_CBS_CFS,
+	SND_SOC_DAILINK_REG(pcm),
 };
 
 static const struct snd_soc_dapm_widget voicebonnet_widgets[] = {
@@ -137,8 +140,8 @@ static const struct snd_kcontrol_new voicebonnet_controls[] = {
 static struct snd_soc_card snd_rpi_aiy_voicebonnet = {
 	.name = "snd_rpi_aiy_voicebonnet",
 	.owner = THIS_MODULE,
-	.dai_link = snd_rpi_aiy_voicebonnet_dai,
-	.num_links = ARRAY_SIZE(snd_rpi_aiy_voicebonnet_dai),
+	.dai_link = &snd_rpi_aiy_voicebonnet_dai,
+	.num_links = 1,
 	.dapm_routes = voicebonnet_audio_map,
 	.num_dapm_routes = ARRAY_SIZE(voicebonnet_audio_map),
 	.dapm_widgets = voicebonnet_widgets,
@@ -150,7 +153,7 @@ static struct snd_soc_card snd_rpi_aiy_voicebonnet = {
 
 static int snd_rpi_aiy_voicebonnet_probe(struct platform_device *pdev) {
 	int ret = 0;
-	struct snd_soc_dai_link *dai = &snd_rpi_aiy_voicebonnet_dai[0];
+	struct snd_soc_dai_link *dai = &snd_rpi_aiy_voicebonnet_dai;
 	struct snd_soc_card *card = &snd_rpi_aiy_voicebonnet;
 	struct device *dev = &pdev->dev;
 	struct device_node *i2s_node;
@@ -158,20 +161,17 @@ static int snd_rpi_aiy_voicebonnet_probe(struct platform_device *pdev) {
 	card->dev = dev;
 
 	if (dev->of_node) {
-		dai->codec_name = NULL;
-		dai->codec_of_node = of_parse_phandle(dev->of_node,
+		dai->codecs->of_node = of_parse_phandle(dev->of_node,
 			"aiy-voicebonnet,audio-codec", 0);
-		if (!dai->codec_of_node) {
+		if (!dai->codecs->of_node) {
 			dev_err(dev, "can't parse codec node\n");
 			return -EINVAL;
 		}
 
 		i2s_node = of_parse_phandle(dev->of_node, "i2s-controller", 0);
 		if (i2s_node) {
-			dai->cpu_dai_name = NULL;
-			dai->cpu_of_node = i2s_node;
-			dai->platform_name = NULL;
-			dai->platform_of_node = i2s_node;
+			dai->cpus->of_node = i2s_node;
+			dai->platforms->of_node = i2s_node;
 		}
 	}
 
