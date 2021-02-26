@@ -6,7 +6,7 @@ set -e
 
 DKMS_NAME=aiy-voicebonnet-soundcard
 DKMS_PACKAGE_NAME=$DKMS_NAME-dkms
-DKMS_VERSION=2.0
+DKMS_VERSION=3.0
 
 postinst_found=0
 
